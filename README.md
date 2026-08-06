@@ -290,4 +290,4 @@ Portions of this codebase were drafted with the assistance of Claude (Anthropic'
 - The chain-of-thought triage prompt in `triage.py` replaced an earlier example-based prompt that was found to be pattern-matching on surface form rather than reasoning.
 - The composite confidence formula in `finalize.py` was designed to replace an uncalibrated LLM self-reported number with a signal-based composite.
 
-See `approach.md` for the full record of decisions and their rationale.
+See `APPROACH.md` for the full record of decisions and their rationale.

@@ -1,4 +1,24 @@
-venv/
 tests/
+
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.venv/
+
+# Runtime logs and cache
 logs/
+*.log
+
+# Runtime-generated data (not source-of-truth)
+data/interaction_metadata.jsonl
+
+# IDE / OS junk
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
