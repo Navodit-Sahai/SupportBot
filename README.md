@@ -1,4 +1,4 @@
-# OrbitDesk Support Agent — Local RAG Pipeline
+# OrbitDesk Support Agent
 
 A support-agent workflow that classifies a customer question, retrieves evidence from a local knowledge base, generates a cited answer, and verifies the answer before returning it. Every model runs locally — no OpenAI, Anthropic, or Gemini calls anywhere in the pipeline.
 
