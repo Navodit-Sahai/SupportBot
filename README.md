@@ -283,11 +283,13 @@ The pipeline runs entirely offline after the initial model download.
 
 ## AI Assistant Disclosure
 
-Portions of this codebase were drafted with the assistance of Claude (Anthropic's AI assistant). Every architectural decision, prompt design, and threshold value was reviewed, tested, and where necessary reworked by the author. Specifically:
+The coding for this project was done with the assistance of Claude (Anthropic's AI assistant). Every architectural decision, design choice, prompt structure, threshold value, and trade-off was made by me (the author). I reviewed, debugged, and tested every part of the code before finalizing it.
 
-- The retry-branch fix in `generation.py` (assistant-turn + edit-request pattern) was co-designed after debugging a real failure mode where the model was reviewing an imagined prior answer.
-- The deterministic citation-repair path in `generation.py` was added after evidence-based prompt engineering alone failed to override the small model's prose/metadata separation prior.
-- The chain-of-thought triage prompt in `triage.py` replaced an earlier example-based prompt that was found to be pattern-matching on surface form rather than reasoning.
-- The composite confidence formula in `finalize.py` was designed to replace an uncalibrated LLM self-reported number with a signal-based composite.
+Specifically:
+
+- The retry-branch fix in `generation.py` (assistant-turn + edit-request pattern) was designed by me after I debugged a failure mode where the model was reviewing an imagined prior answer; Claude wrote the corresponding code changes.
+- The chain-of-thought triage prompt in `triage.py` was my choice after I identified that the earlier example-based prompt was pattern-matching on surface form; Claude drafted the rubric text and the label parser under my direction.
+- The composite confidence formula in `finalize.py` (0.7 × reranker + 0.3 × hybrid) was my design after I decided that the LLM's self-reported number was uncalibrated; Claude wrote the implementation.
+- The verification-failure retry path was validated after I debugged a case where the LLM produced structurally valid JSON but omitted inline `[S?]` citations, causing verification to fail with `"answer contains no citations"`; Claude helped implement the deterministic citation-repair fix so this failure mode passes on the first attempt instead of triggering a 128-second retry.
 
 See `APPROACH.md` for the full record of decisions and their rationale.
