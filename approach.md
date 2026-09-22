@@ -126,22 +126,10 @@ Short, plain explanations for every non-obvious choice in the codebase.
 
 ## Known Limitations
 
-1. **The verifier only checks structure, not meaning.** An answer that cites a real source but describes it wrong will still pass verification. The code has an NLI-based entailment check, but it's turned off because it doubles latency on CPU.
+1. **The verifier only checks structure, not meaning.** An answer that cites a real source but describes it wrong will still pass verification.
 
 2. **Clarification messages are the same every time.** They always ask for "the exact feature or workflow", even when the query already contained one relevant word. A more helpful version would ask a targeted follow-up.
 
 3. **Model revisions are pinned to `main`, not commit hashes.** If Hugging Face pushes an update to any model, the code silently uses the new version.
 
 4. **CPU inference is slow.** Around 30-60 seconds per answerable question on a normal laptop. A GPU would cut this to a few seconds.
-
----
-
-## What I Would Do With More Time
-
-1. **Turn on the NLI verifier** and measure whether the accuracy improvement is worth the extra latency.
-
-2. **Make clarification dynamic** — read the query and ask a specific follow-up instead of a generic one.
-
-3. **Add a "resolution confirmed" workflow** so support agents can promote successful interactions into the retrievable corpus (decision #3's missing piece).
-
-4. **Use a smaller model (0.5B) for triage** and keep the 1.5B only for generation. Triage doesn't need the larger model's capacity, and this would cut triage latency roughly in half.
