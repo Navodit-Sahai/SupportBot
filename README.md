@@ -1,8 +1,6 @@
-# OrbitDesk Support Agent
+# SupportBot
 
 A support-agent workflow that classifies a customer question, retrieves evidence from a local knowledge base, generates a cited answer, and verifies the answer before returning it. Every model runs locally — no OpenAI, Anthropic, or Gemini calls anywhere in the pipeline.
-
-Built for the AI Engineer internship assignment.
 
 ---
 
@@ -29,11 +27,9 @@ Assumes Python 3.10+ and pip.
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/Navodit-Sahai/AI-engineer-Assignment-Tantrabodh-AI- TantrabodhAssignment
-cd TantrabodhAssignment
+git clone https://github.com/Navodit-Sahai/SupportBot
+cd SupportBot
 ```
-
-(The explicit target folder keeps the working directory name consistent with the paths inside the code.)
 
 ### 2. Create a virtual environment
 
@@ -55,7 +51,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-This installs `langgraph`, `transformers`, `sentence-transformers`, `torch`, `rank-bm25`, `pydantic`, and `numpy`. Total install time: 2-5 minutes depending on your network.
+This installs `langgraph`, `transformers`, `sentence-transformers`, `torch`, `rank-bm25`, `pydantic`, and `numpy`. Total install time: 2–5 minutes depending on your network.
 
 ### 4. First run downloads the models
 
@@ -85,7 +81,7 @@ Three modes, all from the project root:
 ```bash
 python main.py --sample
 ```
-This also writes every response to `sample_run_output.json` at the repo root — one machine-readable file with all runs for the reviewer to inspect.
+This also writes every response to `sample_run_output.json` at the repo root — one machine-readable file with all runs.
 
 **Ask one question:**
 ```bash
@@ -123,7 +119,7 @@ Writes `graph.png` at the repo root. Uses LangGraph's built-in Mermaid renderer 
 pytest tests/ -v
 ```
 
-`tests/test_routing.py` stubs every node so it verifies the **graph shape** — which nodes ran, which branch was taken, that retry stops after one attempt — without depending on the LLM's wording. Runs in under one second. This is the "automated test verifying graph routing without depending on the exact wording" the assignment requires.
+`tests/test_routing.py` stubs every node so it verifies the **graph shape** — which nodes ran, which branch was taken, that retry stops after one attempt — without depending on the LLM's wording. Runs in under one second.
 
 Five tests, all deterministic:
 - Answerable path visits the full pipeline
@@ -150,8 +146,6 @@ hybrid_alpha: float = 0.6
 # Retry budget
 max_retries: int = 1
 
-# Enable NLI-based entailment verification (slow on CPU)
-verification_use_nli: bool = False
 ```
 
 **One thing to check on your machine:** `llm_dtype` in `ModelConfig`. On a modern CPU without AVX-512-BF16, `"bfloat16"` uses a slow emulated kernel — set it to `"float32"` or `"float16"` for practical speed. `"float16"` was used for the reference run.
@@ -211,20 +205,20 @@ Interaction summaries are appended to `data/interaction_metadata.jsonl` — ques
 ## Repo layout
 
 ```
-TantrabodhAssignment/
+SupportBot/
 ├── .gitignore
 ├── README.md                       # this file
 ├── approach.md                     # architectural decisions and rationale
 ├── config.py                       # all thresholds, model IDs, paths
 ├── main.py                         # CLI entry point
 ├── draw_graph.py                   # regenerate graph.png from the LangGraph structure
-├── graph.png                       # workflow diagram (also referenced in the video)
+├── graph.png                       # workflow diagram
 ├── requirements.txt
-├── sample_questions.json           # 6 test questions covering all four routing patterns
+├── sample_questions.json           # test questions covering all four routing patterns
 ├── sample_run_output.json          # last --sample run's responses, written by main.py
 ├── data/
-│   ├── kb/*.md                     # 10 knowledge-base documents
-│   ├── resolved_cases.json         # 8 previously solved support cases
+│   ├── kb/*.md                     # knowledge-base documents
+│   ├── resolved_cases.json         # previously solved support cases
 │   ├── output_schema.json          # reference copy of the response schema
 │   └── interaction_metadata.jsonl  # written at runtime, gitignored
 ├── logs/agent.jsonl                # structured node-level logs
@@ -237,7 +231,6 @@ TantrabodhAssignment/
 │   ├── nodes/                      # triage / retrieval / context_builder /
 │   │                               # generation / verification / finalize
 │   └── utils/                      # logger, chunker, metadata_store
-
 ```
 
 ---
@@ -249,7 +242,7 @@ TantrabodhAssignment/
 | Embedding | `sentence-transformers/all-MiniLM-L6-v2` | `main` | Apache 2.0 |
 | Reranker | `cross-encoder/ms-marco-MiniLM-L-6-v2` | `main` | Apache 2.0 |
 | Generation + Triage | `Qwen/Qwen2.5-1.5B-Instruct` | `main` | Apache 2.0 |
-| NLI (optional, off) | `cross-encoder/nli-deberta-v3-base` | `main` | MIT |
+
 
 Revisions are set to `main` in `config.py`. For strict reproducibility, replace each `*_revision` with the commit SHA visible on the model's Hugging Face page under *Files and versions*.
 
@@ -263,33 +256,18 @@ Revisions are set to `main` in `config.py`. For strict reproducibility, replace 
 - 5 GB free disk (models + cache)
 - Any x86_64 or Apple Silicon CPU
 
-**Reference run environment** (the machine `sample_run_output.json` was generated on):
+**Reference run environment:**
 - OS: Windows 11
 - CPU: x86_64, CPU-only inference (no GPU / no accelerator)
 - RAM: 16 GB
 - Python: 3.11
 - LLM dtype: `float16`
-- Observed latency: ~60-90 s triage, ~100-200 s generation per answerable question
+- Observed latency: ~60–90 s triage, ~100–200 s generation per answerable question
 
 **Performance notes:**
-- On CPU with `float16`: end-to-end ~2-3 minutes per answerable question (matches the reference run).
+- On CPU with `float16`: end-to-end ~2–3 minutes per answerable question.
 - On CPU with `float32`: comparable or slightly faster on machines without AVX-512-BF16.
-- On CUDA GPU: ~3-5 s per question (auto-detected when available).
+- On CUDA GPU: ~3–5 s per question (auto-detected when available).
 - On Apple Silicon with `device="mps"`: ~10 s per question.
 
 The pipeline runs entirely offline after the initial model download.
-
----
-
-## AI Assistant Disclosure
-
-The coding for this project was done with the assistance of Claude (Anthropic's AI assistant). Every architectural decision, design choice, prompt structure, threshold value, and trade-off was made by me (the author). I reviewed, debugged, and tested every part of the code before finalizing it.
-
-Specifically:
-
-- The retry-branch fix in `generation.py` (assistant-turn + edit-request pattern) was designed by me after I debugged a failure mode where the model was reviewing an imagined prior answer; Claude wrote the corresponding code changes.
-- The chain-of-thought triage prompt in `triage.py` was my choice after I identified that the earlier example-based prompt was pattern-matching on surface form; Claude drafted the rubric text and the label parser under my direction.
-- The composite confidence formula in `finalize.py` (0.7 × reranker + 0.3 × hybrid) was my design after I decided that the LLM's self-reported number was uncalibrated; Claude wrote the implementation.
-- The verification-failure retry path was validated after I debugged a case where the LLM produced structurally valid JSON but omitted inline `[S?]` citations, causing verification to fail with `"answer contains no citations"`; Claude helped implement the deterministic citation-repair fix so this failure mode passes on the first attempt instead of triggering a 128-second retry.
-
-See `APPROACH.md` for the full record of decisions and their rationale.
